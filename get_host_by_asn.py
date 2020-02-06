@@ -2,7 +2,7 @@ import socket
 import requests
 import ipaddress
 
-search_term = 'talkpython'
+search_term = ''
 
 # read list of ASNs from he.net search results and save in list
 with open('asns.txt', 'r') as file:
@@ -24,10 +24,12 @@ for cidr_entry in haystack:
     except ipaddress.AddressValueError as e:
         continue
 
+results = {}
 
 for ip in ip_list:
     try:
         host = socket.gethostbyaddr(ip)
+        results[ip] = host[0]
         if search_term in host[0]:
             print(search_term + ' found on ' + ip + ' via host ' + host[0])
         else:
