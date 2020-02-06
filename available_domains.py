@@ -50,6 +50,10 @@ for domain in domains:
         print('Socket getaddrinfo error, waiting 5 seconds')
         time.sleep(5)
         result = whois.whois(complete_domain)
+    except ConnectionResetError as e:
+        print('Connection reset, waiting 15 seconds')
+        time.sleep(5)
+        result = whois.whois(complete_domain)
 
     # handle inconsistent returns from WHOIS
     if type(result['creation_date']) is list:
