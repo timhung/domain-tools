@@ -3,6 +3,7 @@ import datetime
 from itertools import product
 import time
 import sqlite3
+import socket
 
 length = 3
 alphabet = 'abcdefghijklmnopqrstuvwxyz'
@@ -39,7 +40,16 @@ for domain in domains:
         continue
 
     # otherwise proceed to obtain WHOIS details and save to database
-    result = whois.whois(complete_domain)
+    try:
+        result = whois.whois(complete_domain)
+    except socket.timeout as e:
+        print('Socket timeout, waiting 5 seconds')
+        time.sleep(5)
+        result = whois.whois(complete_domain)
+    except socket.gaierror as e:
+        print('Socket getaddrinfo error, waiting 5 seconds')
+        time.sleep(5)
+        result = whois.whois(complete_domain)
 
     # handle inconsistent returns from WHOIS
     if type(result['creation_date']) is list:
@@ -65,7 +75,7 @@ for domain in domains:
     print(complete_domain)
     print('Created: ' + str(creation_date))
     print('Expires: ' + str(expiration_date))
-    print(str(time_remaining).split(',')[0] + ' days remaining')
+    print(str(time_remaining).split(',')[0] + ' remaining')
     if time_remaining < alert_time:
         print(complete_domain.upper() + ' EXPIRING IN ' + str(time_remaining).split(',')[0].upper())
     print('*' * 50)
